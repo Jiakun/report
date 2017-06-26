@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
-from code.monthly import MonthlyReport, MonthlySingleDiseaseReport
+from code.monthly import MonthlyReport, MonthlySingleDiseaseReport, \
+    MonthlyLocationReport
 
 
 class MonthlyReportTest(TestCase):
@@ -55,3 +56,41 @@ class MonthlySingleDiseaseReportTest(TestCase):
         with open(output_file_name, "w") as output_object:
             output_object.write(str(self.data.create()))
         output_object.close()
+
+
+class MonthlyLocationReportTest(TestCase):
+    """
+    The test cases to test code in monthly.py.
+    """
+    def setUp(self):
+        pass
+
+    def test_pre_format(self):
+        input_file_name = "../data/2017.3_location.csv"
+        self.data = MonthlyLocationReport(
+            input_file_name=input_file_name,
+            output_file_name="")
+
+    def test_create_intermediate_result(self):
+        input_file_name = "../data/2017.3_location.csvformat"
+        output_file_name = "../report/2017.3_monthly_location.txt"
+        self.data = MonthlyLocationReport(
+            input_file_name=input_file_name,
+            output_file_name="", is_pre_formated=True)
+        self.data.create_intermediate_result(output_file_name=output_file_name)
+
+    def test_output_format(self):
+        input_file_name = "../report/2017.3_monthly_location.txt"
+        output_file_name = "../report/2017.3_monthly_location_format.txt"
+        self.data = MonthlyLocationReport(
+            input_file_name="",
+            output_file_name="", is_pre_formated=True)
+        self.data.output_format(input_file_name, output_file_name)
+
+    def test_create(self):
+        input_file_name = "../data/2017.3_location.csv"
+        output_file_name = "../report/2017.3_location_format.txt"
+        self.data = MonthlyLocationReport(
+            input_file_name=input_file_name,
+            output_file_name=output_file_name, is_pre_formated=False)
+        self.data.create()
