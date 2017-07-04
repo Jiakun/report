@@ -2,6 +2,7 @@
 
 from abc import abstractmethod
 import pandas
+import shlex
 
 
 class MonthlyReport(object):
@@ -16,6 +17,9 @@ class MonthlyReport(object):
             self.content = pandas.read_csv(input_file_name)
         except:
             raise Exception("Cannot read input file.")
+        self.file = open(input_file_name)
+        self.size = len(self.file.readlines()) - 2
+        self.file.close()
 
     def _get_head(self):
         return self.content.head()
@@ -57,49 +61,129 @@ class MonthlySingleDiseaseReport(MonthlyReport):
                     continue
 
                 name = ""
-                line_split = line.split(",")
-                if "D11.0" in line_split[main_diagnosis_index] \
-                        and "M894000/0" in line:
-                    name = "腮腺混合瘤（ICD D11.0 M894000/0）"
-                elif "C01" in line_split[main_diagnosis_index] \
-                        or "C02." in line_split[main_diagnosis_index]:
-                    name = "舌癌（ICD C01-C02.）"
-                elif "D16.5" in line_split[main_diagnosis_index] \
-                        and "成釉细胞瘤" in line:
-                    name = "下颌骨成釉细胞瘤（ICD D16.5）"
+
+                if "\"" in line:
+                    new_line = ""
+                    temp_line_split = line.split(",")
+                    i = 0
+                    while i < len(temp_line_split):
+                        if "\"" in temp_line_split[i]:
+                            new_split = temp_line_split[i]
+                            i += 1
+                            while "\"" not in temp_line_split[i]:
+                                new_split += " " + temp_line_split[i]
+                                i += 1
+                            new_line += new_split + ","
+                            i += 1
+                            continue
+                        new_line += temp_line_split[i] + ","
+                        i += 1
+                    line_split = new_line.split(",")
+
                 else:
-                    for i in range(0, len(diagnosis_keywords)):
-                        if diagnosis_keywords[i] in \
-                                line_split[main_diagnosis_index]:
-                            name = diagnosis_keywords_chinese[i]
-                            break
+                    line_split = line.split(",")
+                try:
+                    if "D11.0" in line_split[main_diagnosis_index] \
+                            and "M894000/0" in line:
+                        name = "腮腺混合瘤（ICD D11.0 M894000/0）"
+                    elif "C01" in line_split[main_diagnosis_index] \
+                            or "C02." in line_split[main_diagnosis_index]:
+                        name = "舌癌（ICD C01-C02.）"
+                    elif "D16.5" in line_split[main_diagnosis_index] \
+                            and "成釉细胞瘤" in line:
+                        name = "下颌骨成釉细胞瘤（ICD D16.5）"
+                    else:
+                        for i in range(0, len(diagnosis_keywords)):
+                            if diagnosis_keywords[i] in \
+                                    line_split[main_diagnosis_index]:
+                                name = diagnosis_keywords_chinese[i]
+                                break
+                except:
+                    raise Exception(line)
                 new_file += line[:-1] + "," + name + "\n"
 
-        with open(input_file_name + "new", "w") as output_file:
+        with open(input_file_name + "format", "w") as output_file:
             output_file.write(new_file)
 
-        MonthlyReport.__init__(self, input_file_name + "new", output_file_name)
+        self.keywords = ["住院天数", "术前住院日", "床位费", "药费", "手术费",
+                         "治疗费", "检查费", "总费用"]
+        MonthlyReport.__init__(self, input_file_name + "format", output_file_name)
 
-    def create(self):
+    def create_intermediate_result(self, inter_output_file_name):
         self.content["药费"] = self.content["抗菌药物费"] + \
                              self.content["西药费"] + \
                              self.content["中成药费"] + self.content["中草药费"]
         self.content["检查费"] = self.content["一般检查费"]
         self.content["治疗费"] =\
-            self.content["一般治疗费"] + self.content["临床物理治疗费"] + \
-            self.content["核素治疗费"] + self.content["介入治疗费"] + \
-            self.content["康复治疗费"] + self.content["中医治疗费"] + \
-            self.content["护理治疗费"] + \
-            self.content["特殊治疗费"] + self.content["精神治疗费"]
+            self.content["一般治疗费"] + self.content["护理治疗费"]
+            # self.content["临床物理治疗费"]
+            # self.content["核素治疗费"] + self.content["介入治疗费"]
+            # self.content["康复治疗费"] + self.content["中医治疗费"]
+            # self.content["特殊治疗费"] + self.content["精神治疗费"]
         grouped_icds = self.content.groupby(self.content["分类ICD"])
+
         data = []
-        keywords = ["住院天数", "术前住院日", "床位费", "药费", "手术费",
-                    "治疗费", "检查费", "总费用"]
         # 费用统计方式
-        with open(self.output_file_name, "w") as output_file:
-            for keyword in keywords:
+        with open(inter_output_file_name, "w") as output_file:
+            output_file.write(str(grouped_icds.size()))
+            for keyword in self.keywords:
+                print keyword
                 output_file.write(str(grouped_icds[keyword].mean()))
         output_file.close()
+
+    def create(self):
+        inter_output_file_name = \
+            self.output_file_name.split("_raw")[0] + ".txt"
+        self.create_intermediate_result(
+            inter_output_file_name=inter_output_file_name)
+        results = [[], [], [], [], [], [], [], [], [], []]
+
+        input_file = open(inter_output_file_name)
+        lines = input_file.readlines()
+        input_file.close()
+        is_first_line = True
+        for line in lines:
+            if is_first_line:
+                is_first_line = False
+                continue
+
+            if "dtype:" in line:
+                continue
+            value = float(line.split(" ")[-1])
+            if "K07.6" in line:
+                results[0].append(value)
+            elif "D16.5" in line:
+                results[1].append(value)
+            elif "Q35" in line:
+                results[3].append(value)
+            elif "Q36" in line:
+                results[4].append(value)
+            elif "C03" in line:
+                results[5].append(value)
+            elif "D11" in line:
+                results[6].append(value)
+            elif "C01" in line:
+                results[7].append(value)
+            elif "K07.1" in line:
+                results[8].append(value)
+            elif "S02" in line:
+                results[9].append(value)
+
+        for result in results:
+            try:
+                result.insert(1, result[0] / self.size * 100)
+            except:
+                pass
+
+        with open(self.output_file_name, "w") as output_file:
+            output_file.write("出院病人数,")
+            for keyword in self.keywords:
+                output_file.write(keyword + ",")
+            for result in results:
+                output_file.write("\n")
+                for value in result:
+                    output_file.write("%.1f," % value)
+            output_file.write(str(self.size))
 
 
 class MonthlyLocationReport(MonthlyReport):

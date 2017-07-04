@@ -33,8 +33,10 @@ class MonthlySingleDiseaseReportTest(TestCase):
     The test cases to test code in monthly.py.
     """
     def setUp(self):
-        input_file_name = "../data/2017.01_01.csv"
-        output_file_name = "../report/test_monthly_report.txt"
+        #input_file_name = "../data/2017.01_01.csv"
+        #output_file_name = "../report/test_monthly_report.txt"
+        input_file_name = "../data/2017.5_entity.csv"
+        output_file_name = "../report/2017.5_diagnosis_report.txt"
         self.data = MonthlySingleDiseaseReport(
             input_file_name=input_file_name,
             output_file_name=output_file_name)
@@ -52,7 +54,8 @@ class MonthlySingleDiseaseReportTest(TestCase):
         output_object.close()
 
     def test_create(self):
-        output_file_name = "../report/test_diagnosis_report.txt"
+        # output_file_name = "../report/test_diagnosis_report.txt"
+        output_file_name = "../report/2017.5_diagnosis_report.txt"
         with open(output_file_name, "w") as output_object:
             output_object.write(str(self.data.create()))
         output_object.close()
@@ -88,8 +91,15 @@ class MonthlyLocationReportTest(TestCase):
         self.data.output_format(input_file_name, output_file_name)
 
     def test_create(self):
-        input_file_name = "../data/2017.3_location.csv"
-        output_file_name = "../report/2017.3_location_format.txt"
+        # input_file_name = "../data/2017.3_location.csv"
+        # output_file_name = "../report/2017.3_location_format.txt"
+
+        # input_file_name = "../data/2017.5_location.csv"
+        # output_file_name = "../report/2017.5_location_format.txt"
+
+        input_file_name = "../data/2017年6月份门诊部按地域挂号收费查询统计.csv"
+        output_file_name = "../report/2017年6月份门诊部按地域挂号收费查询统计_format.txt"
+
         self.data = MonthlyLocationReport(
             input_file_name=input_file_name,
             output_file_name=output_file_name, is_pre_formated=False)
