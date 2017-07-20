@@ -23,7 +23,7 @@ class ExpertReportTest(TestCase):
                            "2016-5门诊C楼专家号统计.csv",
                            "2016-5急诊医事服务费-节假日.csv",
                            "2016-5急诊医事服务费-工作日.csv"]
-        self.file_name = self.file_names[2]
+        self.file_name = self.file_names[6]
         input_file_name = self.input_root + self.file_name
         output_file_name = self.output_root + self.file_name
         self.data = ExpertReport(input_file_name=input_file_name,

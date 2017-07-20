@@ -55,7 +55,6 @@ class ExpertReport(object):
 
     def format_raw_statistic_file(self, root_dir):
         # registration_types = ["知名专家", "主任医师", "副主任医师", "主治医师", "普通"]
-        dep_counts = []
 
         for parent, dirnames, filenames in os.walk(root_dir + "inter/"):
             content = []
@@ -68,6 +67,7 @@ class ExpertReport(object):
 
             for filename in filenames:
                 dep_types = []
+                dep_counts = []
                 is_first_line = True
                 with open(root_dir + "head/" + filename + "科室") as dep_input_file:
                     content = dep_input_file.readlines()
@@ -121,7 +121,7 @@ class ExpertReport(object):
                     dep_counts.append(
                         dep_type + "," +
                         str(counts).replace("[", "").replace("]", ""))
-        with open(self.output_file_name, "w") as output_file:
-            output_file.write("科室,知名专家,主任医师,副主任医师,主治医师,普通,其他\n")
-            for counts in dep_counts[1:]:
-                output_file.write(counts + "\n")
+                with open(root_dir + filename, "w") as output_file:
+                    output_file.write("科室,知名专家,主任医师,副主任医师,主治医师,普通,其他\n")
+                    for counts in dep_counts[1:]:
+                        output_file.write(counts + "\n")
