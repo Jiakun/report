@@ -33,13 +33,16 @@ class MonthlySingleDiseaseReportTest(TestCase):
     The test cases to test code in monthly.py.
     """
     def setUp(self):
-        #input_file_name = "../data/2017.01_01.csv"
-        #output_file_name = "../report/test_monthly_report.txt"
-        input_file_name = "../data/2017.5_entity.csv"
-        output_file_name = "../report/2017.5_diagnosis_report.txt"
+        # self.input_file_name = "../data/2017.01_01.csv"
+        # self.output_file_name = "../report/test_monthly_report.txt"
+        self.input_file_name = "../data/2017.5_entity.csv"
+        self.output_file_name = "../report/2017.5_diagnosis_report.txt"
+
+        # self.input_file_name = "../data/2017.06.csv"
+        # self.output_file_name = "../report/2017.6_diagnosis_report.txt"
         self.data = MonthlySingleDiseaseReport(
-            input_file_name=input_file_name,
-            output_file_name=output_file_name)
+            input_file_name=self.input_file_name,
+            output_file_name=self.output_file_name)
 
     def test_get_head(self):
         output_file_name = "../report/test_head.txt"
@@ -53,12 +56,14 @@ class MonthlySingleDiseaseReportTest(TestCase):
             output_object.write(str(self.data._get_diagnosis_icd_counts()))
         output_object.close()
 
-    def test_create(self):
-        # output_file_name = "../report/test_diagnosis_report.txt"
-        output_file_name = "../report/2017.5_diagnosis_report.txt"
-        with open(output_file_name, "w") as output_object:
-            output_object.write(str(self.data.create()))
+    def test_create_diagnosis(self):
+        with open(self.output_file_name, "w") as output_object:
+            output_object.write(str(self.data.create_diagnosis()))
         output_object.close()
+
+    def test_create_ward(self):
+        self.data.pre_ward("../data/2017.06_day.csv")
+        self.data.create_ward(30.0, "../report/test_wards.csv")
 
 
 class MonthlyLocationReportTest(TestCase):
