@@ -35,11 +35,16 @@ class MonthlySingleDiseaseReportTest(TestCase):
     def setUp(self):
         # self.input_file_name = "../data/2017.01_01.csv"
         # self.output_file_name = "../report/test_monthly_report.txt"
-        self.input_file_name = "../data/2017.5_entity.csv"
-        self.output_file_name = "../report/2017.5_diagnosis_report.txt"
+
+        # self.input_file_name = "../data/2017.5_entity.csv"
+        # self.output_file_name = "../report/2017.5_diagnosis_report.txt"
 
         # self.input_file_name = "../data/2017.06.csv"
         # self.output_file_name = "../report/2017.6_diagnosis_report.txt"
+
+        self.input_file_name = "../data/2017.07.csv"
+        self.output_file_name = "../report/2017.07_diagnosis_report.txt"
+
         self.data = MonthlySingleDiseaseReport(
             input_file_name=self.input_file_name,
             output_file_name=self.output_file_name)
@@ -62,8 +67,8 @@ class MonthlySingleDiseaseReportTest(TestCase):
         output_object.close()
 
     def test_create_ward(self):
-        self.data.pre_ward("../data/2017.06_day.csv")
-        self.data.create_ward(30.0, "../report/test_wards.csv")
+        self.data.pre_ward("../data/2017.07_day.csv")
+        self.data.create_ward(31.0, "../report/2017.07_wards.csv")
 
 
 class MonthlyLocationReportTest(TestCase):
@@ -96,16 +101,18 @@ class MonthlyLocationReportTest(TestCase):
         self.data.output_format(input_file_name, output_file_name)
 
     def test_create(self):
-        # input_file_name = "../data/2017.3_location.csv"
-        # output_file_name = "../report/2017.3_location_format.txt"
+        input_root = "../data/"
+        output_root = "../report/"
+        # input_file_name = "2017.3_location.csv"
+        # input_file_name = "2017.5_location.csv"
+        # input_file_name = "2017年6月份门诊部按地域挂号收费查询统计.csv"
 
-        # input_file_name = "../data/2017.5_location.csv"
-        # output_file_name = "../report/2017.5_location_format.txt"
+        # input_file_name = "2017.7_location_总院.csv"
+        input_file_name = "2017.7_location_二门诊.csv"
 
-        input_file_name = "../data/2017年6月份门诊部按地域挂号收费查询统计.csv"
-        output_file_name = "../report/2017年6月份门诊部按地域挂号收费查询统计_format.txt"
+        output_file_name = input_file_name.replace(".csv", "") + "_format.csv"
 
         self.data = MonthlyLocationReport(
-            input_file_name=input_file_name,
-            output_file_name=output_file_name, is_pre_formated=False)
+            input_file_name=input_root + input_file_name,
+            output_file_name=output_root + output_file_name, is_pre_formated=False)
         self.data.create()
