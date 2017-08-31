@@ -267,7 +267,7 @@ class ExpertCallReport(object):
         all_data["合计"] = all_data["初诊合计"] + all_data["复诊合计"]
 
         all_data.to_csv(output_root + output_file_name)
-        
+
     def save_by_different_time(self, output_root, output_file_name):
         pd.options.display.max_rows = 9999
 
